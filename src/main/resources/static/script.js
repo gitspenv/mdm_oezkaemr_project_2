@@ -1,14 +1,18 @@
 function checkFiles(files) {
-    console.log(files);
+    console.log("Files received:", files); // Debug: log received files
 
-    if (files.length != 1) {
-        alert("Bitte genau eine Datei hochladen.")
+    const answerPart = document.getElementById('answerPart');
+    const preview = document.getElementById('preview');
+    const answer = document.getElementById('answer');
+
+    if (files.length !== 1) {
+        alert("Bitte genau eine Datei hochladen.");
         return;
     }
 
     const fileSize = files[0].size / 1024 / 1024; // in MiB
     if (fileSize > 10) {
-        alert("Datei zu gross (max. 10Mb)");
+        alert("Datei zu groß (max. 10Mb)");
         return;
     }
 
@@ -16,33 +20,38 @@ function checkFiles(files) {
     const file = files[0];
 
     // Preview
-    if (file) {
-        preview.src = URL.createObjectURL(files[0])
-    }
+    preview.src = URL.createObjectURL(file);
 
     // Upload
     const formData = new FormData();
-    for (const name in files) {
-        formData.append("image", files[name]);
-    }
+    formData.append("image", file);
 
     fetch('/analyze', {
         method: 'POST',
-        headers: {
-        },
         body: formData
-    }).then(
-        response => {
-            console.log(response)
-            response.text().then(function (text) {
-                answer.innerHTML = text;
-            });
-
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
         }
-    ).then(
-        success => console.log(success)
-    ).catch(
-        error => console.log(error)
-    );
+        return response.json();
+    }).then(data => {
+        console.log("Data received:", data); // Debug: log the parsed data
+        displayResults(data);
+    }).catch(error => {
+        console.error('Error:', error);
+        answer.innerHTML = 'Error processing your request. ' + error.message;
+    });
+}
+console.log(results)
+function displayResults(results) {
+    const container = document.getElementById('answer');
+    container.innerHTML = ''; // Clear previous content
 
+    results.forEach(result => {
+        const formattedResult = `${result.className}: ${(result.probability * 100).toFixed(2)}%`;
+        const resultElement = document.createElement('p');
+        resultElement.textContent = formattedResult;
+        resultElement.className = 'alert alert-secondary'; // Bootstrap class for styling
+        container.appendChild(resultElement);
+    });
 }

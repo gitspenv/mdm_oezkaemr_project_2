@@ -1,40 +1,50 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Image Classification</title>
-    <meta charset="utf-8" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src="script.js" async></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: url('savannah.jpg') no-repeat center center fixed; 
+            background-size: cover;
+            color: #ffffff;
+        }
+        #answerPart {
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        img#preview {
+            width: 100%; /* Responsive image */
+            max-width: 300px;
+            height: auto;
+            border: 3px solid #ffffff;
+        }
+    </style>
 </head>
-
 <body>
-
     <div class="container-fluid">
-        <h1>Footwear Classification</h1>
-        <p>DeepJavaLibrary (DJL) Demonstration by mosa</p>
-
+        <h1>Wildcats Classification</h1>
         <form>
             <div class="form-group">
-                <label for="exampleFormControlFile1">Bitte Bild hochladen (jpeg, png)</label>
-                <input type="file" accept="image/png, image/jpeg" class="form-control-file" id="image" name="image"
-                    onchange="checkFiles(this.files);">
+                <label for="image">Bitte Bild hochladen (jpeg, png)</label>
+                <input type="file" accept="image/png, image/jpeg" class="form-control-file" id="image" name="image" onchange="checkFiles(this.files);">
             </div>
         </form>
-
         <div id="answerPart" style="visibility: hidden;">
-            <p><b>Answer:</b>
-            <div id="answer"></div>
-            </p>
-
-            <p id="previewPart"><b>Analyzed Image:</b>
-            <p><img id="preview" width="300" src="#" alt="preview" /></p>
-            </p>
+            <h3>Antwort:</h3>
+            <div id="answer" class="alert alert-info"></div>
+            <h3>Analysierte Wildcat:</h3>
+            <img id="preview" src="#" alt="preview" />
         </div>
     </div>
 
-
+    <script src="script.js" async></script>
 </body>
-
 </html>

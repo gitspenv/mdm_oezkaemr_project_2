@@ -30,11 +30,11 @@ public final class Models {
     public static final int NUM_OF_OUTPUT = 4;
 
     // the height and width for pre-processing of the image
-    public static final int IMAGE_HEIGHT = 100;
-    public static final int IMAGE_WIDTH = 100;
+    public static final int IMAGE_HEIGHT = 180;
+    public static final int IMAGE_WIDTH = 180;
 
     // the name of the model
-    public static final String MODEL_NAME = "shoeclassifier";
+    public static final String MODEL_NAME = "wildcatsclassifier";
 
     private Models() {}
 
@@ -44,15 +44,15 @@ public final class Models {
 
         // Block is a composable unit that forms a neural network; combine them like Lego blocks
         // to form a complex network
-        Block resNet50 =
+        Block resNet101 =
                 ResNetV1.builder() // construct the network
                         .setImageShape(new Shape(3, IMAGE_HEIGHT, IMAGE_WIDTH))
-                        .setNumLayers(50)
+                        .setNumLayers(101)
                         .setOutSize(NUM_OF_OUTPUT)
                         .build();
 
         // set the neural network to the model
-        model.setBlock(resNet50);
+        model.setBlock(resNet101);
         return model;
     }
 

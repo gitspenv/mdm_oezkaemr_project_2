@@ -15,6 +15,7 @@ package ch.zhaw.deeplearningjava.footwear;
 import ai.djl.Model;
 import ai.djl.basicdataset.cv.classification.ImageFolder;
 import ai.djl.metric.Metrics;
+import ai.djl.modality.cv.transform.RandomFlipLeftRight;
 import ai.djl.modality.cv.transform.Resize;
 import ai.djl.modality.cv.transform.ToTensor;
 import ai.djl.ndarray.types.Shape;
@@ -28,6 +29,9 @@ import ai.djl.training.evaluator.Accuracy;
 import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.loss.Loss;
 import ai.djl.translate.TranslateException;
+import ai.djl.training.listener.EarlyStoppingListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -45,10 +49,13 @@ import java.nio.file.Paths;
 public final class Training {
 
     // represents number of training samples processed before the model is updated
-    private static final int BATCH_SIZE = 32;
+    private static final int BATCH_SIZE = 16;
 
     // the number of passes over the complete dataset
-    private static final int EPOCHS = 2;
+    private static final int EPOCHS = 3;
+
+    private static final Logger log = LoggerFactory.getLogger(Training.class);
+
 
     public static void main(String[] args) throws IOException, TranslateException {
         // the location to save the model
@@ -56,7 +63,7 @@ public final class Training {
 
         // create ImageFolder dataset from directory
         // ImageFolder dataset = initDataset("ut-zap50k-images-square");
-        ImageFolder dataset = initDataset("ut-zap50k-images-square-small");
+        ImageFolder dataset = initDataset("wild_cats");
         // Split the dataset set into training dataset and validate dataset
         RandomAccessDataset[] datasets = dataset.randomSplit(8, 2);
 
@@ -82,7 +89,13 @@ public final class Training {
         trainer.initialize(inputShape);
 
         // find the patterns in data
+        try {
         EasyTrain.fit(trainer, EPOCHS, datasets[0], datasets[1]);
+    } catch (EarlyStoppingListener.EarlyStoppedException e) {
+        // handle early stopping
+        log.info("Stopped early at epoch {} because: {}", e.getStopEpoch(), e.getMessage());
+        }
+        
 
         // set model properties
         TrainingResult result = trainer.getTrainingResult();
@@ -107,6 +120,7 @@ public final class Training {
                 .setRepositoryPath(Paths.get(datasetRoot))
                 .optMaxDepth(10)
                 .addTransform(new Resize(Models.IMAGE_WIDTH, Models.IMAGE_HEIGHT))
+                .addTransform(new RandomFlipLeftRight())
                 .addTransform(new ToTensor())
                 // random sampling; don't process the data in order
                 .setSampling(BATCH_SIZE, true)
@@ -119,6 +133,8 @@ public final class Training {
     private static TrainingConfig setupTrainingConfig(Loss loss) {
         return new DefaultTrainingConfig(loss)
                 .addEvaluator(new Accuracy())
-                .addTrainingListeners(TrainingListener.Defaults.logging());
+                .addTrainingListeners(TrainingListener.Defaults.logging())
+                .addTrainingListeners(EarlyStoppingListener.builder()
+                .build());
     }
 }
